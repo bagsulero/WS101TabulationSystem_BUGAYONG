@@ -34,7 +34,15 @@ if (isset($_GET['id'])) {
     $resultContestantCount = $stmtContestantCount->get_result();
     $contestantCount = $resultContestantCount->fetch_assoc()['contestant_count'];
 
-    echo "<h2>Score Sheet for Event $event_id</h2>";
+    // Fetch the event title
+    $getEventTitleQuery = "SELECT title FROM events WHERE events_id = ?";
+    $stmtEventTitle = $conn->prepare($getEventTitleQuery);
+    $stmtEventTitle->bind_param("i", $event_id);
+    $stmtEventTitle->execute();
+    $resultEventTitle = $stmtEventTitle->get_result();
+    $eventTitle = $resultEventTitle->fetch_assoc()['title'];
+
+    echo "<h2>Score Sheet for $eventTitle</h2>";
 
     // Initialize arrays to store data
     $criteriaNames = [];
@@ -56,19 +64,18 @@ if (isset($_GET['id'])) {
         $resultScores = $stmtScores->get_result();
 
         if ($resultScores->num_rows > 0) {
-while ($row = $resultScores->fetch_assoc()) {
-    $criteriaNames[$row['criteria_name']] = true;
-    $contestantKey = $row['contestant_number'];
-    $contestantData[$contestantKey]['contestant_number'] = $row['contestant_number']; 
-    $contestantData[$contestantKey]['name'] = $row['contestant_name'];
-    $contestantData[$contestantKey][$judge['judge_name']][$row['criteria_name']] = $row['score'];
+            while ($row = $resultScores->fetch_assoc()) {
+                $criteriaNames[$row['criteria_name']] = true;
+                $contestantKey = $row['contestant_number'];
+                $contestantData[$contestantKey]['contestant_number'] = $row['contestant_number']; 
+                $contestantData[$contestantKey]['name'] = $row['contestant_name'];
+                $contestantData[$contestantKey][$judge['judge_name']][$row['criteria_name']] = $row['score'];
 
-
-    $contestantData[$contestantKey][$judge['judge_name']]['total_score'] =
-        isset($contestantData[$contestantKey][$judge['judge_name']]['total_score'])
-        ? $contestantData[$contestantKey][$judge['judge_name']]['total_score'] + $row['score']
-        : $row['score'];
-}
+                $contestantData[$contestantKey][$judge['judge_name']]['total_score'] =
+                    isset($contestantData[$contestantKey][$judge['judge_name']]['total_score'])
+                    ? $contestantData[$contestantKey][$judge['judge_name']]['total_score'] + $row['score']
+                    : $row['score'];
+            }
 
             echo "<table border='1'>";
             echo "<tr><th>Contestant Number</th><th>Contestant Name</th>";
@@ -157,13 +164,18 @@ while ($row = $resultScores->fetch_assoc()) {
 
         // Display rank for each contestant
         echo "<td>";
-        echo isset($contestant['rank']) ? $contestant['rank'] : '';
+        echo isset($contestant['rank']) ? 'Rank ' . $contestant['rank'] : '';
         echo "</td>";
 
         echo "</tr>";
     }
 
     echo "</table>";
+    echo "<h2>WINNERS</h2>";
+    // Display rank 1, rank 2, and rank 3
+    for ($i = 0; $i < 3 && $i < count($rankedContestants); $i++) {
+        echo "Rank " . ($i + 1) . " is Contestant Number " . $rankedContestants[$i]['contestant_number'] . " " . $rankedContestants[$i]['name'] . "<br>";
+    }
 
     $conn->close();
 } else {
