@@ -172,11 +172,10 @@ while ($row = $resultScores->fetch_assoc()) {
 
 function rankContestants($contestantData)
 {
-    $judgeTotalScores = [];
     foreach ($contestantData as $contestantKey => $data) {
         $totalScore = 0;
         foreach ($data as $judge => $scores) {
-            if ($judge !== 'name') {
+            if ($judge !== 'name' && is_array($scores) && array_key_exists('total_score', $scores)) {
                 $totalScore += $scores['total_score'];
             }
         }
