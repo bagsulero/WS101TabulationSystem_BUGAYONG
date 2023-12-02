@@ -67,13 +67,18 @@ if (isset($_GET['id'])) {
             while ($row = $resultScores->fetch_assoc()) {
                 $criteriaNames[$row['criteria_name']] = true;
                 $contestantKey = $row['contestant_number'];
-                $contestantData[$contestantKey]['contestant_number'] = $row['contestant_number']; 
+                $contestantData[$contestantKey]['contestant_number'] = $row['contestant_number'];
                 $contestantData[$contestantKey]['name'] = $row['contestant_name'];
                 $contestantData[$contestantKey][$judge['judge_name']][$row['criteria_name']] = $row['score'];
 
                 $contestantData[$contestantKey][$judge['judge_name']]['total_score'] =
                     isset($contestantData[$contestantKey][$judge['judge_name']]['total_score'])
                     ? $contestantData[$contestantKey][$judge['judge_name']]['total_score'] + $row['score']
+                    : $row['score'];
+
+                $contestantData[$contestantKey]['total_criterion_score'] =
+                    isset($contestantData[$contestantKey]['total_criterion_score'])
+                    ? $contestantData[$contestantKey]['total_criterion_score'] + $row['score']
                     : $row['score'];
             }
 
@@ -85,7 +90,7 @@ if (isset($_GET['id'])) {
                 echo "<th>{$criterion}</th>";
             }
 
-            echo "<th>Total Score</th>";
+            echo "<th>Total Judge Score</th>";
 
             echo "</tr>";
 
@@ -140,6 +145,7 @@ if (isset($_GET['id'])) {
     echo "<th>Rank</th></tr>";
 
     // Display scores for each contestant in the summary table
+    $rank = 1;
     foreach ($rankedContestants as $contestant) {
         echo "<tr>";
         echo "<td>";
@@ -163,19 +169,94 @@ if (isset($_GET['id'])) {
         echo "</td>";
 
         // Display rank for each contestant
-        echo "<td>";
-        echo isset($contestant['rank']) ? 'Rank ' . $contestant['rank'] : '';
-        echo "</td>";
+        echo "<td>{$rank}</td>";
 
         echo "</tr>";
+        $rank++;
     }
 
     echo "</table>";
+
+    // Display table for each criterion
+    foreach ($criteriaNames as $criterion => $_) {
+        echo "<h2>$criterion Scores</h2>";
+        echo "<table border='1'>";
+        echo "<tr><th>Contestant Number</th><th>Contestant Name</th>";
+
+        // Display scores for each judge
+        foreach ($resultJudges as $judge) {
+            echo "<th>{$judge['judge_name']}</th>";
+        }
+
+        // Add the new column for Total Criterion Score
+        echo "<th>Total Criterion Score</th>";
+        echo "<th>Rank</th>"; // Added Rank column
+
+        echo "</tr>";
+
+        // Display scores for each contestant for the criterion
+        foreach ($contestantData as $contestantKey => $data) {
+            echo "<tr>";
+            echo "<td>{$contestantKey}</td>";
+            echo "<td>{$data['name']}</td>";
+
+            // Display scores for each judge
+            foreach ($resultJudges as $judge) {
+                $totalScore = isset($data[$judge['judge_name']][$criterion])
+                    ? $data[$judge['judge_name']][$criterion]
+                    : '';
+                echo "<td>{$totalScore}</td>";
+            }
+
+            // Display total criterion score for each contestant
+            echo "<td>";
+            $totalCriterionScore = 0;
+            foreach ($resultJudges as $judge) {
+                $totalCriterionScore += isset($data[$judge['judge_name']][$criterion]) ? $data[$judge['judge_name']][$criterion] : 0;
+            }
+            echo $totalCriterionScore;
+            echo "</td>";
+
+            // Display rank for each contestant for the criterion
+            echo "<td>";
+            $rank = 1;
+            foreach ($contestantData as $otherContestantKey => $otherData) {
+                $otherTotalCriterionScore = 0;
+                foreach ($resultJudges as $otherJudge) {
+                    $otherTotalCriterionScore += isset($otherData[$otherJudge['judge_name']][$criterion]) ? $otherData[$otherJudge['judge_name']][$criterion] : 0;
+                }
+                if ($otherTotalCriterionScore > $totalCriterionScore) {
+                    $rank++;
+                }
+            }
+            echo $rank;
+            echo "</td>";
+
+            echo "</tr>";
+        }
+
+        echo "</table>";
+    }
+
+
+    // Display WINNERS
     echo "<h2>WINNERS</h2>";
     // Display rank 1, rank 2, and rank 3
     for ($i = 0; $i < 3 && $i < count($rankedContestants); $i++) {
         echo "Rank " . ($i + 1) . " is Contestant Number " . $rankedContestants[$i]['contestant_number'] . " " . $rankedContestants[$i]['name'] . "<br>";
     }
+
+    echo "<h2>AWARDS</h2>";
+
+    foreach ($criteriaNames as $criterion => $_) {
+        $bestInCriterion = findBestInCriterion($rankedContestants, $criterion);
+        if ($bestInCriterion) {
+            $awardName = "Best in " . $criterion;
+            echo "$awardName is Contestant Number {$bestInCriterion['contestant_number']} {$bestInCriterion['name']}<br>";
+        }
+    }
+
+    
 
     $conn->close();
 } else {
@@ -190,7 +271,7 @@ function rankContestants($contestantData)
             if ($judge !== 'name' && is_array($scores) && array_key_exists('total_score', $scores)) {
                 $totalScore += $scores['total_score'];
             }
-        }
+        }   
         $contestantData[$contestantKey]['grand_total'] = $totalScore;
     }
 
@@ -208,4 +289,16 @@ function rankContestants($contestantData)
 
     return $rankedContestants;
 }
+
+function findBestInCriterion($rankedContestants, $criterion)
+{
+    foreach ($rankedContestants as $contestant) {
+        if ($contestant['rank'] === 1) {
+            return $contestant;
+        }
+    }
+
+    return null;
+}
+
 ?>
