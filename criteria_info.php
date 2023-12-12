@@ -93,50 +93,115 @@ if (isset($_GET['id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>Criteria Information</title>
     <style>
-        .container {
+           .container {
             max-width: 600px;
             width: 100%;
-            margin: 0 auto; /* Center horizontally */
+            margin:  auto; /* Center horizontally */
             padding-bottom: 50px;
             padding-top: 50px;
         }
-
+       
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             margin: 0;
             padding: 0;
+            font-family: 'Arial', sans-serif;
+ 
+    box-shadow: 0 0 20px 20px rgba(0, 0, 0, 0.1);
+    background-image: url('images/bgfooter.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+            
+        }
+
+        header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-image: url('images/PSU-LABEL-2.png');
+    background-size:25%; /* Adjust the percentage value to resize the image */
+    background-position: left; /* Adjust as needed */
+    background-repeat: no-repeat;
+    background-color: #0A2647;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+        header h1 {
+            font-family: 'Arial', sans-serif;
+            color: white;
+            text-align: center;
+        }
+
+        sidebar {
+            width: 290px;
+            background-color: #0A2647;
+            color: white;
+            padding: 60px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 118px;
+            bottom: 0;
+        }
+
+        sidebar button {
             display: flex;
             align-items: center;
-            justify content: center;
-            min-heigh: 100vh ;
+            margin-bottom: 30px;
+            justify-content: space-around;
+            background-color: #686868;
+            font-family: 'Comic Sans MS', sans-serif;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            padding: 10px;
+        }
+
+        sidebar button i {
+            font-size: 30px;
+        }
+
+        sidebar button:hover {
+            background-color: red;
+            animation: buttonHoverAnimation 0.5s forwards;
+        }
+
+        @keyframes buttonHoverAnimation {
+            to {
+                transform: scale(1.2);
+            }
+        }
+
+        .container {
+            display: flex;
+            margin-top: 80px;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
         }
 
         footer {
             background-color: #333;
-            color: #fff;
+            color: white;
             text-align: center;
             padding: 10px;
             font-family: 'Comic Sans MS', sans-serif;
             position: fixed;
             bottom: 0;
             width: 100%;
-        }
-
-        header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background-image: url('images/PSU-LABEL_b.png'); /* Palitan mo ang 'lo.png' ng tamang pangalan ng iyong larawan */
-            background-size: contain; /* I-adjust ang size depende sa laki ng larawan nang hindi naapekto ang aspect ratio */
-            background-position: left center; /* I-adjust ang position para maging 'left' */
-            background-repeat: no-repeat;
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
         }
 
         form {
@@ -149,7 +214,8 @@ if (isset($_GET['id'])) {
             color: #333;
         }
 
-        input[type="text"], input[type="number"] {
+        input[type="text"],
+        input[type="number"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -163,7 +229,7 @@ if (isset($_GET['id'])) {
             padding: 12px 20px;
             margin: 5px;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
@@ -171,7 +237,7 @@ if (isset($_GET['id'])) {
         }
 
         input[type="submit"] {
-            background-color: #3498db;
+            background-color: #0D3B66;
         }
 
         input[type="submit"]:hover {
@@ -179,7 +245,7 @@ if (isset($_GET['id'])) {
         }
 
         .edit-button {
-            background-color: #3498db;
+            background-color: #0D3B66;
         }
 
         .edit-button:hover {
@@ -187,7 +253,7 @@ if (isset($_GET['id'])) {
         }
 
         .delete-button {
-            background-color: #e74c3c;
+            background-color: #0D3B66;
         }
 
         .delete-button:hover {
@@ -200,36 +266,75 @@ if (isset($_GET['id'])) {
             margin-top: 20px;
         }
 
-        th, td {
+        th,
+        td {
             padding: 15px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
 
         th {
-            background-color: #333;
+            background-color: #064789;
             color: white;
         }
 
         td {
-            background-color: #f9f9f9;
+            background-color: #d9d9d9;
         }
+
+     
+        section {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 20px 20px rgba(0, 0, 0, 0.1);
+            width: 200%; /* Change the width as per your requirement */
+        }
+      
     </style>
 </head>
 <body>
-    <header>
-        <button onclick="window.location.href='admin_homepage.php'">LIST OF EVENTS</button>
-        <button onclick="window.location.href='contestant_info.php?id=<?php echo $eventId; ?>'">CONTESTANT OF THE EVENT</button>
-        <button onclick="window.location.href='criteria_info.php?id=<?php echo $eventId; ?>'">CRITERIAS OF THE EVENT</button>
-        <button onclick="window.location.href='judge_info.php?id=<?php echo $eventId; ?>'">JUDGES OF THE EVENT</button>
-        <button onclick="window.location.href='view_score_sheets.php?id=<?php echo $eventId; ?>'">VIEW SCORE SHEETS</button>
+<header>
+        <h1>Events Tabulation System</h1>
     </header>
+
+    <sidebar>
+        <button onclick="window.location.href='admin_homepage.php'">
+            <i class="fas fa-tasks"></i>
+            &nbsp;&nbsp;&nbsp;LIST OF EVENTS
+        </button>
+
+        <button onclick="window.location.href='contestant_info.php?id=<?php echo $eventId; ?>'">
+            <i class="fas fa-user"></i>
+            &nbsp&nbsp CONTESTANT OF THE EVENT
+        </button>
+
+        <button onclick="window.location.href='criteria_info.php?id=<?php echo $eventId; ?>'">
+            <i class="fas fa-trophy"></i>
+            &nbsp&nbsp&nbspCRITERIAS OF THE EVENT
+        </button>
+
+        <button onclick="window.location.href='judge_info.php?id=<?php echo $eventId; ?>'">
+            <i class="fas fa-gavel"></i>
+            &nbsp&nbsp&nbspJUDGES OF THE EVENT
+        </button>
+
+        <button onclick="window.location.href='view_score_sheets.php?id=<?php echo $eventId; ?>'">
+            <i class="fas fa-chart-bar"></i>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VIEW SCORE
+        </button>
+    </sidebar>
+
     <div class="container">
-    <h2>Criteria Information</h2>
+        <br><br> <br><br> 
+        <main>
 
     <!-- Existing Form for Criteria -->
-    <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>?id=<?php echo $eventId; ?>">
-        <label>Criteria:</label>
+    <section><form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>?id=<?php echo $eventId; ?>">
+    <h2><?php echo $eventTitle; ?></h2>
+    <h2>Criteria Information</h2>
+         <label>Criteria:</label>
         <input type="text" name="edited_criteria" value="<?php echo isset($editedCriteria) ? htmlspecialchars($editedCriteria) : ''; ?>" required>
 
         <label>Percentage:</label>
@@ -288,11 +393,9 @@ if (isset($_GET['id'])) {
         ?>
     </table>
 </div>
+</main>
+    </section>
 
-<!-- Footer -->
-<footer>
-    &copy; 2023 Events Tabulation System
-</footer>
 
 </body>
 </html>

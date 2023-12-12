@@ -76,18 +76,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+            background-color: rgba(255, 255, 255, 0.8); 
+            box-shadow: 0 0 20px 20px rgba(0, 0, 0, 0.1);
+            background-image: url('images/bgfooter.jpg');
+            background-size: 100%;
+            background-position: center;
+            background-repeat: no-repeat;          
         }
 
         header {
-            background-image: url('PSU-LABEL_b.png');
-            background-size: contain;
-            background-position: left center;
-            background-repeat: no-repeat;
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
+    background-image: url('images/PSU-LABEL-2.png');
+    background-size:30%;
+    background-position: 15% center;
+    background-repeat: no-repeat;
+    background-color: #0A2647;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
         }
+        
 
         section {
             max-width: 800px;
@@ -98,22 +105,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         footer {
-            background-color: #333;
+            background-color: #0A2647;
             color: #fff;
-            padding: 40px;
+            padding: 30px;
             text-align: center;
-            margin-top: 100px;
+            margin-top: 50px;
         }
 
         header h1 {
-            font-family: 'Comic Sans MS', sans-serif;
-            color: white;
-            text-align: center;
+            font-family: 'Arial', sans-serif;
+            color:#0A2647;
+            text-align: right;
         }
 
         h2 {
             color: black;
             text-align: center;
+            font-family: 'Arial', sans-serif;
         }
 
         form {
@@ -137,7 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .edit-button,
         .delete-button {
             display: inline-block;
-            padding: 5px 5px;
             margin: 5px;
             border: none;
             border-radius: 4px;
@@ -145,11 +152,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-align: center;
             text-decoration: none;
             color: white;
-        }
-
-        .edit-button {
-            padding: 12px 20px;
-            background-color: #3498db;
+            width: 90px; 
+            padding: 10px; 
         }
 
         input[type="submit"] {
@@ -161,11 +165,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .edit-button {
-            background-color: #3498db;
+            background-color: #0D3B66;
         }
 
         .edit-button:hover {
-            background-color: #2980b9;
+            background-color: red;
         }
 
         .delete-button {
@@ -173,8 +177,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .delete-button:hover {
-            background-color: #c0392b;
+            background-color: #400000;
         }
+
+        
 
         table {
             width: 100%;
@@ -186,11 +192,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: center;
+            
         }
 
         th {
-            background-color: #333;
-            color: red;
+            background-color: #064789;
+            color: white;
         }
 
         a {
@@ -204,9 +211,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-    <h2>ADMIN HOMEPAGE</h2>
-    <h2>Add/Edit Event</h2>
-    <form method="post" action="admin_homepage.php?action=<?php echo $isEdit ? 'edit' : 'create'; ?>&id=<?php echo isset($_GET['id']) ? $_GET['id'] : ''; ?>">
+<header>
+        <h1>Events Tabulation System</h1>
+    </header>
+   
+    <section><form method="post" action="admin_homepage.php?action=<?php echo $isEdit ? 'edit' : 'create'; ?>&id=<?php echo isset($_GET['id']) ? $_GET['id'] : ''; ?>">
+
+    <h2>Events Tabulation System</h2>
         <?php
         if ($isEdit) {
             $editId = $_GET['id'];
@@ -235,33 +246,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <h2>Events</h2>
     <table border="1">
-        <tr>
-            <th>Title</th>
-            <th>Action</th>
-        </tr>
+    <tr>
+        <th>Title</th>
+        <th>Action</th>
+    </tr>
 
-        <?php
-        $result = $conn->query("SELECT events_id, title FROM events");
-        if ($result === false) {
-            die("Query failed: " . $conn->error);
-        }
+    <?php
+    $result = $conn->query("SELECT events_id, title FROM events");
+    if ($result === false) {
+        die("Query failed: " . $conn->error);
+    }
 
-        while ($row = $result->fetch_assoc()) {
-            echo "<tr>";
-            echo "<td><a href='contestant_info.php?id={$row['events_id']}'>{$row['title']}</a></td>";
-            echo "<td>";
-            echo "<form method='get' action='admin_homepage.php'>";
-            echo "<input type='hidden' name='id' value='{$row['events_id']}'>";
-            echo "<button type='submit' name='action' value='edit' class='edit-button'>Edit</button>";
-            echo "</form>";
-            echo "<form method='post' action='admin_homepage.php' class='delete-button' onsubmit=\"return confirm('Are you sure you want to delete this event?');\">";
-            echo "<input type='hidden' name='delete_id' value='{$row['events_id']}'>";
-            echo "<button type='submit' name='delete' value='delete' class='delete-button' >Delete</button>";
-            echo "</form>";
-            echo "</td>";
-            echo "</tr>";
-        }
-        ?>
-    </table>
+    while ($row = $result->fetch_assoc()) {
+        echo "<tr>";
+        echo "<td><a href='contestant_info.php?id={$row['events_id']}'>{$row['title']}</a></td>";
+        echo "<td>";
+
+        // Edit button
+        echo "<form method='get' action='admin_homepage.php' style='display: inline; margin-right: 5px;'>";
+        echo "<input type='hidden' name='id' value='{$row['events_id']}'>";
+        echo "<button type='submit' name='action' value='edit' class='edit-button'>Edit</button>";
+        echo "</form>";
+
+        // Delete button
+        echo "<form method='post' action='admin_homepage.php'  style='display: inline;' onsubmit=\"return confirm('Are you sure you want to delete this event?');\">";
+        echo "<input type='hidden' name='delete_id' value='{$row['events_id']}'>";
+        echo "<button type='submit' name='delete' value='delete' class='delete-button'>Delete</button>";
+        echo "</form>";
+
+        echo "</td>";
+        echo "</tr>";
+    }
+    ?>
+</table>
+    </section>
+
+<br>  
+ <footer>
+    © 2023 Events Tabulation System. All rights reserved.
+</footer>
 </body>
 </html>
